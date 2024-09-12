@@ -17,18 +17,18 @@ export default function Mole({ isActive, onWhack }) {
       onClick={onWhack}
     >
       <motion.div
-        className="w-full h-full bg-brown-800 rounded-full relative overflow-hidden"
+        className="w-full h-full bg-brown-800 relative overflow-hidden"
         animate={{
           y: isActive ? "0%" : "100%",
         }}
         transition={{
           type: "spring",
-          stiffness: 500,
+          stiffness: 700,
           damping: 30,
         }}
       >
         {isActive && (
-          <img src={moleImg} alt="dirt" className="w-full h-full " />
+          <img src={moleImg} alt="dirt" className="w-full h-full" />
         )}
       </motion.div>
       <img src={dirtImg} alt="dirt" className="w-full h-full " />

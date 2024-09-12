@@ -3,7 +3,7 @@ import Mole from "./Mole";
 
 const GAME_DURATION = 30000; // 30 seconds
 const MOLE_COUNT = 9;
-const MOLE_SHOW_TIME = 1000; // 1 second
+const MOLE_SHOW_TIME = 800; // 800 ms
 
 export default function WhackAMole({ score, setScore }) {
   const [gameActive, setGameActive] = useState(false);
@@ -45,28 +45,28 @@ export default function WhackAMole({ score, setScore }) {
   }, [gameActive, timeLeft, endGame]);
 
   useEffect(() => {
-  let moleTimer;
-  if (gameActive) {
-    moleTimer = setInterval(() => {
-      setActiveMoles((prevMoles) => {
-        const newMoles = Array(MOLE_COUNT).fill(false);
-        const inactiveIndices = prevMoles.reduce(
-          (acc, mole, index) => (!mole ? [...acc, index] : acc),
-          []
-        );
-        if (inactiveIndices.length > 0) {
-          const randomIndex =
-            inactiveIndices[
-              Math.floor(Math.random() * inactiveIndices.length)
-            ];
-          newMoles[randomIndex] = true;
-        }
-        return newMoles;
-      });
-    }, MOLE_SHOW_TIME);
-  }
-  return () => clearInterval(moleTimer);
-}, [gameActive]);
+    let moleTimer;
+    if (gameActive) {
+      moleTimer = setInterval(() => {
+        setActiveMoles((prevMoles) => {
+          const newMoles = Array(MOLE_COUNT).fill(false);
+          const inactiveIndices = prevMoles.reduce(
+            (acc, mole, index) => (!mole ? [...acc, index] : acc),
+            []
+          );
+          if (inactiveIndices.length > 0) {
+            const randomIndex =
+              inactiveIndices[
+                Math.floor(Math.random() * inactiveIndices.length)
+              ];
+            newMoles[randomIndex] = true;
+          }
+          return newMoles;
+        });
+      }, MOLE_SHOW_TIME);
+    }
+    return () => clearInterval(moleTimer);
+  }, [gameActive]);
 
   return (
     <div className="text-center">
@@ -83,7 +83,7 @@ export default function WhackAMole({ score, setScore }) {
           Start Game
         </button>
       )}
-      <div className="grid grid-cols-3 gap-4 max-w-md mx-auto mt-8">
+      <div className="grid grid-cols-3 gap-16 max-w-md mx-auto mt-8">
         {activeMoles.map((isActive, index) => (
           <Mole
             key={index}
