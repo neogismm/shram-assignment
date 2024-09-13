@@ -6,6 +6,8 @@ const session = require("express-session");
 const User = require("./models/User.js");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const authRoutes = require("./routes/authRoutes.js");
+const gameRoutes = require("./routes/gameRoutes.js");
 
 dotenv.config();
 
@@ -49,7 +51,7 @@ passport.use(
             githubId: profile.id,
             name: profile.displayName,
             profilePicture: profile.photos[0].value,
-            highScore: 0,
+            highscore: 0,
           });
           await user.save();
         }
@@ -64,9 +66,10 @@ passport.use(
 passport.serializeUser(function (user, cb) {
   process.nextTick(function () {
     return cb(null, {
-      id: user.id,
-      username: user.username,
-      picture: user.picture,
+      githubId: user.githubId,
+      name: user.name,
+      profilePicture: user.profilePicture,
+      highscore: user.highscore
     });
   });
 });
@@ -77,45 +80,9 @@ passport.deserializeUser(function (user, cb) {
   });
 });
 
-// Auth routes
-app.get(
-  "/auth/github",
-  passport.authenticate("github", { scope: ["user:email"] })
-);
-
-app.get(
-  "/auth/github/callback",
-  passport.authenticate("github", { failureRedirect: "/login" }),
-  (req, res) => {
-    res.redirect("http://localhost:5173/game");
-  }
-);
-
-// Game API routes
-app.get("/api/user", (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({
-      name: req.user.name,
-      profilePicture: req.user.profilePicture,
-      highScore: req.user.highScore,
-    });
-  } else {
-    res.status(401).json({ error: "Not authenticated" });
-  }
-});
-
-app.post("/api/score", async (req, res) => {
-  if (req.isAuthenticated()) {
-    const { score } = req.body;
-    if (score > req.user.highScore) {
-      req.user.highScore = score;
-      await req.user.save();
-    }
-    res.json({ highScore: req.user.highScore });
-  } else {
-    res.status(401).json({ error: "Not authenticated" });
-  }
-});
+// routes
+app.use(authRoutes);
+app.use(gameRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
