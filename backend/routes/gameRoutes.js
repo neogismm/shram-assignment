@@ -1,4 +1,5 @@
 const express = require("express");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -29,34 +30,30 @@ router.post("/api/score", async (req, res) => {
   }
 });
 
-// logout
-// router.post('/api/logout', (req, res) => {
-//   if (req.session) {
-//     req.session.destroy((err) => {
-//       if (err) {
-//         console.error('Error destroying session:', err);
-//         return res.status(500).json({ message: 'Could not log out, please try again' });
-//       }
-      
-//       // Clear the session cookie
-//       res.clearCookie('connect.sid', { path: '/' });
-//       res.redirect('http://localhost:5173/');
-//     });
-//   } else {
-//     // If not using sessions, just send a success response
-//     // The front-end should handle clearing any stored tokens
-//     res.redirect('http://localhost:5173/');
-//   }
-// });
+// GET leaderboard
+router.get("/api/leaderboard", async (req, res) => {
+  try {
+    const leaderboard = await User.find()
+      .sort({ highscore: -1 })
+      .limit(10)
+      .select("name highscore");
 
-router.post('/api/logout', function(req, res, next) {
-  req.logout(function(err) {
-    if (err) { 
-      return res.status(500).json({ message: 'Logout failed', error: err.message });
-    }
-    res.status(200).json({ message: 'Logout successful' });
-  });
+    res.json(leaderboard);
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    res.status(500).json({ message: "Error fetching leaderboard" });
+  }
 });
 
+router.post("/api/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Logout failed", error: err.message });
+    }
+    res.status(200).json({ message: "Logout successful" });
+  });
+});
 
 module.exports = router;
