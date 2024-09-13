@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Mole from "./Mole";
+import LoginModal from "./LoginModal";
 
 const GAME_DURATION = 30000; // 30 seconds
 const MOLE_COUNT = 9;
@@ -70,6 +71,7 @@ export default function WhackAMole({ score, setScore }) {
 
   return (
     <div className="text-center">
+      <LoginModal />
       <h1 className="text-4xl font-bold mb-4">Whack-A-Mole</h1>
       <div className="mb-4">
         <p className="text-2xl">Score: {score}</p>
