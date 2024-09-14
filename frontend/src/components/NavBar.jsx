@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export default function NavBar() {
+  const { user } = useUser();
+
   return (
     <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold">
+      <div className="container mx-auto flex justify-between">
+        <Link to="/" className="font-bold hover:text-green-400 transition-colors">
           Whack-A-Mole
         </Link>
         <ul className="flex space-x-4">
@@ -24,9 +27,15 @@ export default function NavBar() {
           <li>
             <Link
               to="/profile"
-              className="hover:text-green-400 transition-colors"
+              className="hover:text-green-400 transition-colors flex items-center"
             >
-              Profile
+              {user && user.profilePicture && (
+                <img
+                  src={user.profilePicture}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full mr-2 hover:opacity-70 transition-opacity"
+                />
+              )}
             </Link>
           </li>
         </ul>
