@@ -11,7 +11,7 @@ export default function CongratulationsModal({ isOpen, onClose }) {
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
         <h2 className="text-lg font-bold mb-4">Congratulations 🎉</h2>
         <p className="text-sm mb-6">
-          You've achieved a new high score of {user.highscore}!
+          You've achieved a new personal best: {user.highscore}!
         </p>
         <button
           onClick={onClose}

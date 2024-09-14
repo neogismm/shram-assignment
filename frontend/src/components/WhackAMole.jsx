@@ -156,7 +156,7 @@ export default function WhackAMole({ score, setScore }) {
       <div className="mb-4">
         <p className="text-xl mb-2">Score: {score}</p>
         {user && (
-          <p className="text-xl mb-2">Your highest score: {user.highscore}</p>
+          <p className="text-xl mb-2">Your personal best: {user.highscore}</p>
         )}
         <p className="text-lg mb-2">
           Time Left: <span className="text-red-500">{timeLeft}s</span>
