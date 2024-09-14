@@ -15,7 +15,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://shram-assignment-jet.vercel.app/",
     credentials: true,
   })
 );

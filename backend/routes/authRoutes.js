@@ -14,7 +14,7 @@ router.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/login" }),
   (req, res) => {
-    res.redirect("http://localhost:5173/");
+    res.redirect("https://shram-assignment-jet.vercel.app/");
   }
 );
 
