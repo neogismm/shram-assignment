@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Mole from "./Mole";
 import LoginModal from "./LoginModal";
 
-const GAME_DURATION = 30000; // 30 seconds
+const GAME_DURATION = 10000; // 30 seconds
 const MOLE_COUNT = 9;
 const MOLE_SHOW_TIME = 800; // 800 ms
 
@@ -17,10 +17,32 @@ export default function WhackAMole({ score, setScore }) {
     setTimeLeft(GAME_DURATION / 1000);
   };
 
+  const updateScore = async (score) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/score`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ score }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("High score updated:", data.highscore);
+      } else {
+        console.error("Failed to update high score:", data.error);
+      }
+    } catch (error) {
+      console.error("Error updating high score:", error);
+    }
+  };
+
   const endGame = useCallback(() => {
     setGameActive(false);
     setActiveMoles(Array(MOLE_COUNT).fill(false));
-  }, []);
+    updateScore(score);
+  }, [score]);
 
   const whackMole = (index) => {
     if (gameActive && activeMoles[index]) {

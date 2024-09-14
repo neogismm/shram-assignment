@@ -66,7 +66,7 @@ passport.use(
 passport.serializeUser(function (user, cb) {
   process.nextTick(function () {
     return cb(null, {
-      githubId: user.githubId,
+      id: user._id,
       name: user.name,
       profilePicture: user.profilePicture,
       highscore: user.highscore
