@@ -48,7 +48,7 @@ export default function Leaderboard() {
       <h2 className="text-2xl font-bold text-center py-4 bg-primary text-primary-foreground">
         Leaderboard
       </h2>
-      <h3>Showing top 10 players out {count}</h3>
+      <h3>Showing top 10 players out of {count}</h3>
       <div className="flex justify-center overflow-x-auto text-center">
         <table className="max-w-2xl w-full border-collapse">
           <thead className="font-bold">

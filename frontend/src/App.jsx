@@ -12,7 +12,7 @@ export default function App() {
   return (
     <Router>
       <UserProvider>
-        <div className="min-h-screen bg-gradient-to-br from-green-700 to-blue-500">
+        <div className="font-press-start min-h-screen bg-gradient-to-br from-green-700 to-blue-500">
           <NavBar />
           <main className="container mx-auto p-4">
             <Routes>
