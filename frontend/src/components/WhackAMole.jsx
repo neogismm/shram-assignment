@@ -181,7 +181,7 @@ export default function WhackAMole({ score, setScore }) {
           </span>
         </button>
       )}
-      <div className="grid grid-cols-3 gap-20 max-w-md mx-auto mt-8">
+      <div className="grid grid-cols-3 gap-[72px] max-w-md mx-auto mt-8">
         {activeMoles.map((isActive, index) => (
           <Mole
             key={index}

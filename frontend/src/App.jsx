@@ -14,7 +14,7 @@ export default function App() {
       <UserProvider>
         <div className="font-press-start min-h-screen bg-gradient-to-br from-green-600 to-blue-500">
           <NavBar />
-          <main className="container mx-auto p-4">
+          <main className="container mx-auto p-4 mt-3">
             <Routes>
               <Route
                 path="/"
