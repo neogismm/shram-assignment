@@ -3,8 +3,8 @@ import { useState } from "react";
 import WhackAMole from "./components/WhackAMole";
 import Leaderboard from "./components/Leaderboard";
 import Profile from "./components/Profile";
-import NavBar from "./components/Navbar";
 import { UserProvider } from "./contexts/UserContext";
+import NavBar from "./components/NavBar";
 
 export default function App() {
   const [score, setScore] = useState(0);
