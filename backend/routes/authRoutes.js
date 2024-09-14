@@ -1,5 +1,8 @@
 const express = require("express");
 const passport = require("passport");
+const dotenv = require("dotenv");
+
+dotenv.config()
 
 const router = express.Router();
 
@@ -14,7 +17,7 @@ router.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/login" }),
   (req, res) => {
-    res.redirect("https://shram-assignment-jet.vercel.app/");
+    res.redirect(process.env.FRONTEND_URL);
   }
 );
 
