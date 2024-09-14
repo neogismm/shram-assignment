@@ -15,7 +15,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://shram-assignment-jet.vercel.app/",
+    origin: "https://shram-assignment-jet.vercel.app",
     credentials: true,
   })
 );
