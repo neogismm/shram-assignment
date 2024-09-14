@@ -9,8 +9,8 @@ export default function CongratulationsModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
-        <h2 className="text-2xl font-bold mb-4">Congratulations 🎉</h2>
-        <p className="text-lg mb-6">
+        <h2 className="text-lg font-bold mb-4">Congratulations 🎉</h2>
+        <p className="text-sm mb-6">
           You've achieved a new high score of {user.highscore}!
         </p>
         <button

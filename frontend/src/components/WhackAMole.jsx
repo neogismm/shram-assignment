@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
-import Confetti from 'react-confetti';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import Confetti from "react-confetti";
 import Mole from "./Mole";
 import LoginModal from "./LoginModal";
 import CongratulationsModal from "./CongratulationsModal";
 import { useUser } from "../contexts/UserContext";
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw } from "lucide-react";
 
 const GAME_DURATION = 10000; // 10 seconds
 const MOLE_COUNT = 9;
@@ -17,11 +17,14 @@ export default function WhackAMole({ score, setScore }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showHighScoreModal, setShowHighScoreModal] = useState(false);
   const { user, setUser } = useUser();
+  const timerRef = useRef(null);
+  const startTimeRef = useRef(null);
 
   const startGame = () => {
     setGameActive(true);
     setScore(0);
     setTimeLeft(GAME_DURATION / 1000);
+    startTimeRef.current = Date.now();
   };
 
   const resetGame = () => {
@@ -29,6 +32,9 @@ export default function WhackAMole({ score, setScore }) {
     setScore(0);
     setTimeLeft(GAME_DURATION / 1000);
     setActiveMoles(Array(MOLE_COUNT).fill(false));
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
   };
 
   const updateScore = async (score) => {
@@ -64,6 +70,9 @@ export default function WhackAMole({ score, setScore }) {
     setGameActive(false);
     setActiveMoles(Array(MOLE_COUNT).fill(false));
     updateScore(score);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
   }, [score]);
 
   const whackMole = (index) => {
@@ -78,16 +87,28 @@ export default function WhackAMole({ score, setScore }) {
   };
 
   useEffect(() => {
-    let timer;
-    if (gameActive && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      endGame();
+    if (gameActive) {
+      timerRef.current = setInterval(() => {
+        const elapsedTime = Math.floor(
+          (Date.now() - startTimeRef.current) / 1000
+        );
+        const newTimeLeft = Math.max(0, GAME_DURATION / 1000 - elapsedTime);
+        setTimeLeft(newTimeLeft);
+
+        if (newTimeLeft === 0) {
+          endGame();
+        }
+      }, 100);
+    } else if (timerRef.current) {
+      clearInterval(timerRef.current);
     }
-    return () => clearInterval(timer);
-  }, [gameActive, timeLeft, endGame]);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [gameActive, endGame]);
 
   useEffect(() => {
     let moleTimer;
@@ -131,13 +152,15 @@ export default function WhackAMole({ score, setScore }) {
         </div>
       )}
       <LoginModal />
-      <h1 className="text-4xl font-bold mb-4">Whack-A-Mole</h1>
+      <h1 className="text-3xl font-bold mb-4">Whack-A-Mole</h1>
       <div className="mb-4">
-        <p className="text-2xl">Score: {score}</p>
+        <p className="text-xl mb-2">Score: {score}</p>
         {user && (
-          <p className="text-2xl">Your highest score: {user.highscore}</p>
+          <p className="text-xl mb-2">Your highest score: {user.highscore}</p>
         )}
-        <p className="text-xl">Time Left: {timeLeft}s</p>
+        <p className="text-lg mb-2">
+          Time Left: <span className="text-red-500">{timeLeft}s</span>
+        </p>
       </div>
       {!gameActive && (
         <button
@@ -152,7 +175,10 @@ export default function WhackAMole({ score, setScore }) {
           onClick={resetGame}
           className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-colors"
         >
-          <span className="flex gap-2">Retry<RotateCcw /> </span>
+          <span className="flex gap-2">
+            Retry
+            <RotateCcw />{" "}
+          </span>
         </button>
       )}
       <div className="grid grid-cols-3 gap-20 max-w-md mx-auto mt-8">
