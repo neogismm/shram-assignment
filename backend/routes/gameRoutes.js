@@ -23,7 +23,7 @@ router.put("/api/score", async (req, res) => {
     return res.status(401).json({ error: "Not authenticated" });
   }
   const { score } = req.body;
-  if (typeof score !== 'number') {
+  if (typeof score !== "number") {
     return res.status(400).json({ error: "Invalid score" });
   }
   try {
@@ -45,7 +45,6 @@ router.put("/api/score", async (req, res) => {
   }
 });
 
-
 // GET leaderboard
 router.get("/api/leaderboard", async (req, res) => {
   try {
@@ -54,7 +53,9 @@ router.get("/api/leaderboard", async (req, res) => {
       .limit(10)
       .select("name highscore");
 
-    res.json(leaderboard);
+    const totalCount = await User.countDocuments();
+    result = { leaderboard, totalCount };
+    res.json(result);
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
     res.status(500).json({ message: "Error fetching leaderboard" });

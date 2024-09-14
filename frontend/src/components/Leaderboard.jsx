@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { useUser } from "../contexts/UserContext";
 
 export default function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [count, setcount] = useState(null)
+  const { user } = useUser();
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -16,7 +19,8 @@ export default function Leaderboard() {
           throw new Error("Failed to fetch leaderboard");
         }
         const data = await response.json();
-        setLeaderboard(data);
+        setLeaderboard(data.leaderboard);
+        setcount(data.totalCount);
       } catch (err) {
         setError("Error fetching leaderboard. Please try again later.");
       } finally {
@@ -25,7 +29,6 @@ export default function Leaderboard() {
     };
 
     fetchLeaderboard();
-    console.log("rerednred");
   }, []);
 
   if (isLoading) {
@@ -45,7 +48,7 @@ export default function Leaderboard() {
       <h2 className="text-2xl font-bold text-center py-4 bg-primary text-primary-foreground">
         Leaderboard
       </h2>
-      <h3>Showing top 10 players out TOTAL_PLAYERS</h3>
+      <h3>Showing top 10 players out {count}</h3>
       <div className="flex justify-center overflow-x-auto text-center">
         <table className="max-w-2xl w-full border-collapse">
           <thead className="font-bold">
@@ -68,7 +71,7 @@ export default function Leaderboard() {
                   {index + 1}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {entry.name}
+                  {entry.name} {entry._id === user.id ? "(You)" : ""}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   {entry.highscore}
