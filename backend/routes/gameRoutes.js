@@ -5,6 +5,9 @@ const router = express.Router();
 
 // GET user details
 router.get("/api/user", async (req, res) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+  console.log('Authenticated:', req.isAuthenticated());
   if (req.isAuthenticated()) {
     res.json({
       id: req.user.id,
