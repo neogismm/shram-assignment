@@ -10,7 +10,7 @@ router.get("/api/user", async (req, res) => {
   console.log('Authenticated:', req.isAuthenticated());
   if (req.isAuthenticated()) {
     res.json({
-      id: req.user.id,
+      id: req.user._id,  // Note the underscore before id
       name: req.user.name,
       profilePicture: req.user.profilePicture,
       highscore: req.user.highscore,

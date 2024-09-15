@@ -67,21 +67,20 @@ passport.use(
   )
 );
 
-passport.serializeUser(function (user, cb) {
-  process.nextTick(function () {
-    return cb(null, {
-      id: user._id,
-      name: user.name,
-      profilePicture: user.profilePicture,
-      highscore: user.highscore
-    });
-  });
+passport.serializeUser((user, cb) => {
+  cb(null, user.id);
 });
 
-passport.deserializeUser(function (user, cb) {
-  process.nextTick(function () {
-    return cb(null, user);
-  });
+passport.deserializeUser(async (id, cb) => {
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return cb(null, false);  // User not found
+    }
+    cb(null, user);
+  } catch (err) {
+    cb(err);
+  }
 });
 
 // routes
