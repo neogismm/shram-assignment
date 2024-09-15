@@ -11,48 +11,24 @@ const gameRoutes = require("./routes/gameRoutes.js");
 
 dotenv.config();
 
-const app = express();
-
-const allowedOrigins = [
-  process.env.FRONTEND_URL, 
-  'http://localhost:5173',  
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
-);
-
-
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI);
 
-// Middleware
-app.use(express.json());
-app.use(
-  session({
-    secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
+passport.serializeUser((user, cb) => {
+  cb(null, user.id);
+});
+
+passport.deserializeUser(async (id, cb) => {
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return cb(null, false);  // User not found
     }
-  })
-);
-app.use(passport.initialize());
-app.use(passport.session());
+    cb(null, user);
+  } catch (err) {
+    cb(err);
+  }
+});
 
 // Passport GitHub strategy
 passport.use(
@@ -82,21 +58,45 @@ passport.use(
   )
 );
 
-passport.serializeUser((user, cb) => {
-  cb(null, user.id);
-});
+// Express setup
+const app = express();
 
-passport.deserializeUser(async (id, cb) => {
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      return cb(null, false);  // User not found
+const allowedOrigins = [
+  process.env.FRONTEND_URL, 
+  'http://localhost:5173',  
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
+
+// Middleware
+app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
     }
-    cb(null, user);
-  } catch (err) {
-    cb(err);
-  }
-});
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // routes
 app.use(authRoutes);
