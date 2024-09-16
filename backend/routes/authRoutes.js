@@ -15,7 +15,7 @@ router.get(
 
 // callback
 router.get(
-  "/auth/github/callback",
+  `${process.env.OWN_URL}/auth/github/callback`,
   passport.authenticate("github", { session: false }),
   (req, res) => {
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
