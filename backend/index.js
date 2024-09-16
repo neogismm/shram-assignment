@@ -15,11 +15,13 @@ dotenv.config();
 mongoose.connect(process.env.MONGO_URI);
 
 passport.serializeUser((user, cb) => {
+  console.log("Serializing user: ", user);
   cb(null, user.id);
 });
 
 passport.deserializeUser(async (id, cb) => {
   try {
+    console.log("Deserializing user: ", user);
     const user = await User.findById(id);
     if (!user) {
       return cb(null, false);  // User not found
