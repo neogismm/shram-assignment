@@ -19,7 +19,7 @@ router.get(
   passport.authenticate("github", { session: false }),
   (req, res) => {
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.redirect(`${process.env.FRONTEND_URL}/login/success?token=${token}`);
+    res.redirect(`https://shram-assignment-jet.vercel.app/login/success?token=${token}`);
   }
 );
 
