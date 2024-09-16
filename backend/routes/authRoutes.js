@@ -15,7 +15,7 @@ router.get(
 
 // callback
 router.get(
-  `${process.env.OWN_URL}/auth/github/callback`,
+  `https://shram-assignment-production.up.railway.app/auth/github/callback`,
   passport.authenticate("github", { session: false }),
   (req, res) => {
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
