@@ -1,55 +1,55 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    const token = new URLSearchParams(location.search).get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+      navigate('/');
+    }
     fetchUserData();
-  }, []);
+  }, [location]);
 
   const fetchUserData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUser(null);
+      return;
+    }
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/user`,
         {
-          credentials: "include",
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         }
       );
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
-        console.log(userData);
       } else {
         setUser(null);
+        localStorage.removeItem('token');
       }
     } catch (error) {
       console.error("Failed to fetch user data:", error);
       setUser(null);
+      localStorage.removeItem('token');
     }
   };
 
-  const logout = async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/logout`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
-      if (res.ok) {
-        setUser(null);
-        navigate("/");
-      } else {
-        console.error("Logout failed");
-      }
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate("/");
   };
 
   return (

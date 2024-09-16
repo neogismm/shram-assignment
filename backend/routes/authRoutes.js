@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv");
 
 dotenv.config()
@@ -15,13 +16,11 @@ router.get(
 // callback
 router.get(
   "/auth/github/callback",
-  passport.authenticate("github", { failureRedirect: "/login" }),
+  passport.authenticate("github", { session: false }),
   (req, res) => {
-    res.redirect(process.env.FRONTEND_URL);
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.redirect(`${process.env.FRONTEND_URL}/login/success?token=${token}`);
   }
 );
-
-
-
 
 module.exports = router;

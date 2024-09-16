@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const GitHubStrategy = require("passport-github2").Strategy;
-const session = require("express-session");
+const jwt = require('jsonwebtoken'); // Add this
 const User = require("./models/User.js");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -14,23 +14,7 @@ dotenv.config();
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI);
 
-passport.serializeUser((user, cb) => {
-  console.log("Serializing user: ", user);
-  cb(null, user.id);
-});
-
-passport.deserializeUser(async (id, cb) => {
-  try {
-    console.log("Deserializing user: ", user);
-    const user = await User.findById(id);
-    if (!user) {
-      return cb(null, false);  // User not found
-    }
-    cb(null, user);
-  } catch (err) {
-    cb(err);
-  }
-});
+// Remove passport.serializeUser and passport.deserializeUser
 
 // Passport GitHub strategy
 passport.use(
@@ -38,7 +22,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: `https://shram-assignment-production.up.railway.app/auth/github/callback`,
+      callbackURL: `${process.env.BACKEND_URL}/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -71,7 +55,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
         var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -86,19 +69,25 @@ app.use(
 
 // Middleware
 app.use(express.json());
-app.use(
-  session({
-    secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-    }
-  })
-);
 app.use(passport.initialize());
-app.use(passport.session());
+
+// Remove session middleware
+
+// JWT middleware
+app.use((req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return next();
+      }
+      req.user = decoded;
+      next();
+    });
+  } else {
+    next();
+  }
+});
 
 // routes
 app.use(authRoutes);

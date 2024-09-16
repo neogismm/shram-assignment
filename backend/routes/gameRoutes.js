@@ -1,30 +1,44 @@
 const express = require("express");
 const User = require("../models/User");
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
-// GET user details
-router.get("/api/user", async (req, res) => {
-  console.log('Session:', req.session);
-  console.log('User:', req.user);
-  console.log('Authenticated:', req.isAuthenticated());
-  if (req.isAuthenticated()) {
-    res.json({
-      id: req.user._id,  // Note the underscore before id
-      name: req.user.name,
-      profilePicture: req.user.profilePicture,
-      highscore: req.user.highscore,
+const authenticateJWT = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+      req.user = user;
+      next();
     });
   } else {
-    res.status(401).json({ error: "Not authenticated" });
+    res.sendStatus(401);
+  }
+};
+
+// GET user details
+router.get("/api/user", authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json({
+      id: user._id,
+      name: user.name,
+      profilePicture: user.profilePicture,
+      highscore: user.highscore,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
 // UPDATE high score
-router.put("/api/score", async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: "Not authenticated" });
-  }
+router.put("/api/score", authenticateJWT, async (req, res) => {
   const { score } = req.body;
   if (typeof score !== "number") {
     return res.status(400).json({ error: "Invalid score" });
@@ -65,15 +79,9 @@ router.get("/api/leaderboard", async (req, res) => {
   }
 });
 
-router.post("/api/logout", function (req, res, next) {
-  req.logout(function (err) {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Logout failed", error: err.message });
-    }
-    res.status(200).json({ message: "Logout successful" });
-  });
+router.post("/api/logout", (req, res) => {
+  // With JWT, logout is handled client-side by removing the token
+  res.status(200).json({ message: "Logout successful" });
 });
 
 module.exports = router;
