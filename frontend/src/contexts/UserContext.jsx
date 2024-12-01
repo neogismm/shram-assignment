@@ -9,27 +9,15 @@ export const UserProvider = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const token = new URLSearchParams(location.search).get('token');
-    if (token) {
-      localStorage.setItem('token', token);
-      navigate('/');
-    }
     fetchUserData();
   }, [location]);
 
   const fetchUserData = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setUser(null);
-      return;
-    }
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/user`,
+        `${import.meta.env.VITE_BACKEND_URL}/auth/user`,
         {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          credentials: 'include', // Include cookies in the request
         }
       );
       if (response.ok) {
@@ -37,19 +25,24 @@ export const UserProvider = ({ children }) => {
         setUser(userData);
       } else {
         setUser(null);
-        localStorage.removeItem('token');
       }
     } catch (error) {
       console.error("Failed to fetch user data:", error);
       setUser(null);
-      localStorage.removeItem('token');
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate("/");
+  const logout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
+        method: 'GET',
+        credentials: 'include', // Include cookies in the request
+      });
+      setUser(null);
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    }
   };
 
   return (
