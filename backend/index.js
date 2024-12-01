@@ -24,7 +24,11 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
+<<<<<<< HEAD
       callbackURL: `${process.env.BACKEND_URL}/auth/github/callback`,
+=======
+      callbackURL: `/auth/github/callback`,
+>>>>>>> 6f4ad13 (callback_url changed)
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
