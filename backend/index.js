@@ -18,6 +18,8 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
 });
 
+app.set('trust proxy', 1);
+
 // Passport GitHub strategy
 passport.use(
   new GitHubStrategy(
@@ -95,6 +97,7 @@ app.use(
       secure: process.env.NODE_ENV === 'production', // Set to true in production
       httpOnly: true,
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
     },
   })
 );
