@@ -1,26 +1,36 @@
-const express = require("express");
-const passport = require("passport");
-const jwt = require('jsonwebtoken');
-const dotenv = require("dotenv");
-
-dotenv.config()
-
+const express = require('express');
+const passport = require('passport');
 const router = express.Router();
 
-// login route
-router.get(
-  "/auth/github",
-  passport.authenticate("github", { scope: ["user:email"] })
-);
+// Route to initiate GitHub authentication
+router.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
 
-// callback
-router.get(
-  `https://shram-assignment-production.up.railway.app/auth/github/callback`,
-  passport.authenticate("github", { session: false }),
+// Route to handle GitHub OAuth callback
+router.get('/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/' }),
   (req, res) => {
-    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.redirect(`https://shram-assignment-jet.vercel.app/login/success?token=${token}`);
+    // Successful authentication, redirect to your frontend
+    res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
   }
 );
+
+// Route to get the current authenticated user
+router.get('/auth/user', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json(req.user);
+  } else {
+    res.status(401).json({ message: 'Not authenticated' });
+  }
+});
+
+// Route to logout
+router.get('/auth/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json({ message: 'Logged out' });
+  });
+});
 
 module.exports = router;

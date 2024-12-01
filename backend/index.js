@@ -2,7 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const GitHubStrategy = require("passport-github2").Strategy;
-const jwt = require('jsonwebtoken'); // Add this
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const User = require("./models/User.js");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -12,9 +13,10 @@ const gameRoutes = require("./routes/gameRoutes.js");
 dotenv.config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI);
-
-// Remove passport.serializeUser and passport.deserializeUser
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // Passport GitHub strategy
 passport.use(
@@ -22,7 +24,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: `https://shram-assignment-production.up.railway.app/auth/github/callback`,
+      callbackURL: `${process.env.BACKEND_URL}/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -44,12 +46,26 @@ passport.use(
   )
 );
 
+// Serialize and deserialize user
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+
 // Express setup
 const app = express();
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL, 
-  'http://localhost:5173',  
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
 ];
 
 app.use(
@@ -69,25 +85,21 @@ app.use(
 
 // Middleware
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+    cookie: {
+      secure: process.env.NODE_ENV === 'production', // Set to true in production
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    },
+  })
+);
 app.use(passport.initialize());
-
-// Remove session middleware
-
-// JWT middleware
-app.use((req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) {
-        return next();
-      }
-      req.user = decoded;
-      next();
-    });
-  } else {
-    next();
-  }
-});
+app.use(passport.session());
 
 // routes
 app.use(authRoutes);
