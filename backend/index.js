@@ -18,8 +18,6 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
 });
 
-app.set('trust proxy', 1);
-
 // Passport GitHub strategy
 passport.use(
   new GitHubStrategy(
@@ -69,6 +67,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:5173',
 ];
+
+app.set('trust proxy', 1);
 
 app.use(
   cors({
