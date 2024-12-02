@@ -3,7 +3,6 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();

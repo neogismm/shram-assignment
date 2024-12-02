@@ -17,7 +17,7 @@ export const UserProvider = ({ children }) => {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/auth/user`,
         {
-          credentials: 'include', // Include cookies in the request
+          credentials: 'include', 
         }
       );
       if (response.ok) {
@@ -36,7 +36,7 @@ export const UserProvider = ({ children }) => {
     try {
       await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
         method: 'GET',
-        credentials: 'include', // Include cookies in the request
+        credentials: 'include', 
       });
       setUser(null);
       navigate("/");

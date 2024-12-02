@@ -94,7 +94,7 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
+      secure: process.env.NODE_ENV === 'production', // true in production
       httpOnly: true,
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
